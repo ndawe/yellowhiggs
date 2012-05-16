@@ -7,6 +7,8 @@ yellowhiggs provides an interface with Higgs production cross section and branch
 CERN Yellow Report:
 
 * `CERNYellowReportPageAt7TeV <https://twiki.cern.ch/twiki/bin/view/LHCPhysics/CERNYellowReportPageAt7TeV>`_
+* `CERNYellowReportPageAt8TeV <https://twiki.cern.ch/twiki/bin/view/LHCPhysics/CERNYellowReportPageAt8TeV>`_
+* `CERNYellowReportPageAt14TeV <https://twiki.cern.ch/twiki/bin/view/LHCPhysics/CERNYellowReportPageAt14TeV>`_
 * `CERNYellowReportPageBR <https://twiki.cern.ch/twiki/bin/view/LHCPhysics/CERNYellowReportPageBR>`_
 
 
