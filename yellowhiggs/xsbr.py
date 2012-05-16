@@ -60,44 +60,62 @@ def _read_br_file(filename):
     return br
 
 
-MODES = [
-    'ggf',
-    'vbf',
-    'wh',
-    'zh',
-    'tth'
-]
+MODES = {}
+energy_dirs = resource_listdir('yellowhiggs', os.path.join('dat', 'xs'))
+ENERGIES = map(float, energy_dirs)
 
 __XS = {}
-for mode in MODES:
-    __XS[mode] = _read_xs_file(os.path.join('dat', 'xs', '%s.txt' % mode))
+for energy, energy_dir in zip(ENERGIES, energy_dirs):
+    mode_files = resource_listdir('yellowhiggs', os.path.join('dat', 'xs', energy_dir))
+    modes = [mode.split('.')[0] for mode in mode_files]
+    MODES[energy] = modes
+    __XS[energy] = {}
+    for mode, mode_file in zip(modes, mode_files):
+        __XS[energy][mode] = _read_xs_file(os.path.join('dat', 'xs', energy_dir, mode_file))
 
 __BR = {}
 for channel_file in resource_listdir('yellowhiggs', os.path.join('dat', 'br')):
     __BR.update(_read_br_file(os.path.join('dat', 'br', channel_file)))
 
 
-def xs(mass, mode):
+def xs(energy, mass, mode):
     """
     Return the production cross section [pb] in this mode in the form:
     (xs, xs_high, xs_low)
     """
-    return __XS[mode][mass]
+    if energy not in __XS:
+        raise ValueError(("no cross sections recorded for energy %.1f TeV. "
+                          "Use one of %s") %
+                          (energy, ', '.join(map(str, __XS.keys()))))
+    if mode not in __XS[energy]:
+        raise ValueError("production mode '%s' not understood. Use one of %s" %
+                         (mode, ', '.join(__XS[energy].keys())))
+    if mass not in __XS[energy][mode]:
+        raise ValueError("mass point %.1f GeV not recorded for production mode '%s'" %
+                         (mass, mode))
+
+    return __XS[energy][mode][mass]
 
 
 def br(mass, channel):
     """
     Return the branching ratio for this channel
     """
+    if channel not in __BR:
+        raise ValueError("channel '%s' not understood. Use one of %s" %
+                         (channel, ', '.join(__BR.keys())))
+    if mass not in __BR[channel]:
+        raise ValueError("mass point %.1f [GeV] not recorded for channel '%s'" %
+                         (mass, channel))
     return __BR[channel][mass]
 
 
-def xsbr(mass, mode, channel):
+def xsbr(energy, mass, mode, channel):
     """
     Return the production cross section [pb] times branching ratio for this mode and
     channel in the form:
     (xsbr, xsbr_high, xsbr_low)
     """
-    _xs, xs_high, xs_low = xs(mass, mode)
+    _xs, xs_high, xs_low = xs(energy, mass, mode)
     _br = br(mass, channel)
     return (_xs * _br, xs_high * _br, xs_low * _br)
