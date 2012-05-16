@@ -13,14 +13,14 @@ CERN Yellow Report:
 Automatic Installation
 ----------------------
 
-Automatically install the latest version of goodruns with
+Automatically install the latest version of yellowhiggs with
 `pip <http://pypi.python.org/pypi/pip>`_::
 
-    pip install --user goodruns
+    pip install --user yellowhiggs
 
 or with ``easy_install``::
 
-    easy_install --user goodruns
+    easy_install --user yellowhiggs
 
 Omit the ``--user`` for a system-wide installation (requires root privileges).
 
@@ -31,14 +31,14 @@ option in the ``pip`` or ``easy_install`` commands above.
 Manual Installation
 -------------------
 
-Get the latest tarball on `PyPI <http://pypi.python.org/pypi/goodruns/>`_
+Get the latest tarball on `PyPI <http://pypi.python.org/pypi/yellowhiggs/>`_
 
 Untar and install (replace X appropriately)::
 
-   tar -zxvf goodruns-X.tar.gz
-   cd goodruns-X
+   tar -zxvf yellowhiggs-X.tar.gz
+   cd yellowhiggs-X
 
-To install goodruns into your home directory
+To install yellowhiggs into your home directory
 if using at least Python 2.6::
 
    python setup.py install --user
