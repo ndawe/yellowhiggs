@@ -31,8 +31,8 @@ def _read_xs_file(filename):
             raise ValueError("line not understood: %s\n%s" % (line, e))
 
         xs[mass] = (xs_mean,
-                    xs_mean * (1. + error_high / 100.),
-                    xs_mean * (1. + error_low / 100.))
+                    xs_mean * (1. + abs(error_high) / 100.),
+                    xs_mean * (1. - abs(error_low) / 100.))
     f.close()
     return xs
 
