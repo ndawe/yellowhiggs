@@ -23,8 +23,6 @@ else:
 if 'install' in sys.argv:
     print __doc__
 
-data_path = os.path.join('yellowhiggs', 'dat')
-
 setup(name='yellowhiggs',
       version=VERSION,
       description='Interface for the CERN Yellow Report',
