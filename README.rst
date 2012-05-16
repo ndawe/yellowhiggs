@@ -55,16 +55,16 @@ An example of how to use yellowhiggs::
 
    >>> import yellowhiggs
    >>> 
-   >>> yellowhiggs.xsbr(130, 'vbf', 'bb')
+   >>> yellowhiggs.xsbr(7, 130, 'vbf', 'bb')
    (0.5689219999999999, 0.584851816, 0.555836794)
    >>> 
-   >>> yellowhiggs.xsbr(130, 'vbf', 'tautau')
+   >>> yellowhiggs.xsbr(7, 130, 'vbf', 'tautau')
    (0.0632392, 0.0650098976, 0.06178469839999999)
    >>> 
-   >>> yellowhiggs.xsbr(125, 'ggf', 'gammagamma')
+   >>> yellowhiggs.xsbr(7, 125, 'ggf', 'gammagamma')
    (0.0350599, 0.0418965805, 0.0297658551)
    >>> 
-   >>> yellowhiggs.xs(150, 'vbf')
+   >>> yellowhiggs.xs(7, 150, 'vbf')
    (0.9617, 0.9895892999999999, 0.9405426)
    >>> 
    >>> yellowhiggs.br(150, 'tautau')
@@ -73,8 +73,8 @@ An example of how to use yellowhiggs::
    0.0105
 
 Cross sections are returned in units of [pb].
-`xs` returns the (central cross section, high value, low value) for a given
-Higgs mass [GeV] and production mode.
+`xs` returns the (central cross section, high value, low value) at a :math:`\sqrt{s}` [TeV]
+for a given Higgs mass [GeV] and production mode.
 `br` returns the branching ratio at a given Higgs mass [GeV] for a decay channel.
-`xsbr` returns the cross section times branching ratio for a given Higgs mass [GeV],
-production mode and decay channel.
+`xsbr` returns the cross section times branching ratio at a :math:`\sqrt{s}` [TeV]
+for a given Higgs mass [GeV], production mode and decay channel.
