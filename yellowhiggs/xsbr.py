@@ -4,6 +4,7 @@ branching ratios. See dat/README
 """
 import os
 from glob import glob
+from pkg_resources import resource_stream, resource_listdir
 
 
 __all__ = [
@@ -18,7 +19,7 @@ __HERE = os.path.dirname(os.path.abspath(__file__))
 def _read_xs_file(filename):
 
     xs = {}
-    f = open(filename)
+    f = resource_stream('yellowhiggs', filename)
     for line in f.readlines():
         line = line.strip()
         if line.startswith('#'):
@@ -39,7 +40,7 @@ def _read_xs_file(filename):
 def _read_br_file(filename):
 
     br = {}
-    f = open(filename)
+    f = resource_stream('yellowhiggs', filename)
     for i, line in enumerate(f.readlines()):
         line = line.strip().split()
         if i == 0:
@@ -69,11 +70,11 @@ MODES = [
 
 __XS = {}
 for mode in MODES:
-    __XS[mode] = _read_xs_file(os.path.join(__HERE, 'dat', 'xs', '%s.txt' % mode))
+    __XS[mode] = _read_xs_file(os.path.join('dat', 'xs', '%s.txt' % mode))
 
 __BR = {}
-for channel_file in glob(os.path.join(__HERE, 'dat', 'br', '*.txt')):
-    __BR.update(_read_br_file(channel_file))
+for channel_file in resource_listdir('yellowhiggs', os.path.join('dat', 'br')):
+    __BR.update(_read_br_file(os.path.join('dat', 'br', channel_file)))
 
 
 def xs(mass, mode):

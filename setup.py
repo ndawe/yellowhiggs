@@ -36,8 +36,8 @@ setup(name='yellowhiggs',
       packages=['yellowhiggs'],
       data_files=[(prefix, ['version.txt'])],
       package_data={
-          'yellowhiggs': (  glob(os.path.join(data_path, 'xs', '*.txt'))
-                          + glob(os.path.join(data_path, 'br', '*.txt'))),
+          'yellowhiggs': ['dat/xs/*.txt',
+                          'dat/br/*.txt'],
       },
       license='GPLv3',
       classifiers=[
