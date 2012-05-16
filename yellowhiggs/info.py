@@ -12,6 +12,6 @@ Author: Noel Dawe
 
 VERSION = '1.0a1'
 URL = 'https://end.web.cern.ch/end/projects/yellowhiggs/'
-DOWNLOAD_URL = 'http://pypi.python.org/packages/source/y/yellohiggs/yellowhiggs-%s.tar.gz' % VERSION
+DOWNLOAD_URL = 'http://pypi.python.org/packages/source/y/yellowhiggs/yellowhiggs-%s.tar.gz' % VERSION
 
 __doc__ %= VERSION
