@@ -1,0 +1,5 @@
+recursive-include yellowhiggs *.txt
+include LICENSE
+include *.py
+include README
+include README.rst
