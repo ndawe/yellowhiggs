@@ -18,42 +18,44 @@ __HERE = os.path.dirname(os.path.abspath(__file__))
 def _read_xs_file(filename):
 
     xs = {}
-    with open(filename) as f:
-        for line in f.readlines():
-            line = line.strip()
-            if line.startswith('#'):
-                continue
-            line = line.split()
-            try:
-                mass, xs_mean, error_high, error_low = map(float, line[:4])
-            except ValueError, e:
-                raise ValueError("line not understood: %s\n%s" % (line, e))
+    f = open(filename)
+    for line in f.readlines():
+        line = line.strip()
+        if line.startswith('#'):
+            continue
+        line = line.split()
+        try:
+            mass, xs_mean, error_high, error_low = map(float, line[:4])
+        except ValueError, e:
+            raise ValueError("line not understood: %s\n%s" % (line, e))
 
-            xs[mass] = (xs_mean,
-                        xs_mean * (1. + error_high / 100.),
-                        xs_mean * (1. + error_low / 100.))
+        xs[mass] = (xs_mean,
+                    xs_mean * (1. + error_high / 100.),
+                    xs_mean * (1. + error_low / 100.))
+    f.close()
     return xs
 
 
 def _read_br_file(filename):
 
     br = {}
-    with open(filename) as f:
-        for i, line in enumerate(f.readlines()):
-            line = line.strip().split()
-            if i == 0:
-                # First line contains channel labels
-                # Ignore first column which is the Higgs mass
-                channels = line[1:]
-                for channel in channels:
-                    br[channel] = {}
-            else:
-                try:
-                    line = map(float, line)
-                except ValueError, e:
-                    raise ValueError("line not understood: %s\n%s" % (line, e))
-                for channel, value in zip(channels, line[1:]):
-                    br[channel][line[0]] = value
+    f = open(filename)
+    for i, line in enumerate(f.readlines()):
+        line = line.strip().split()
+        if i == 0:
+            # First line contains channel labels
+            # Ignore first column which is the Higgs mass
+            channels = line[1:]
+            for channel in channels:
+                br[channel] = {}
+        else:
+            try:
+                line = map(float, line)
+            except ValueError, e:
+                raise ValueError("line not understood: %s\n%s" % (line, e))
+            for channel, value in zip(channels, line[1:]):
+                br[channel][line[0]] = value
+    f.close()
     return br
 
 

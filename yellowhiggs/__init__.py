@@ -1,1 +1,1 @@
-from .xsbr import *
+from yellowhiggs.xsbr import *
