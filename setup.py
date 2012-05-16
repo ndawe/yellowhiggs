@@ -2,16 +2,15 @@
 
 import os
 import sys
+from glob import glob
 
 
 if os.getenv('YELLOWHIGGS_NO_DISTRIBUTE') in ('1', 'true'):
     from distutils.core import setup
-    packages = ['yellowhiggs']
 else:
     from distribute_setup import use_setuptools
     use_setuptools()
-    from setuptools import setup, find_packages
-    packages = find_packages()
+    from setuptools import setup
 
 execfile('yellowhiggs/info.py')
 open('version.txt', 'w').write(VERSION)
@@ -24,7 +23,9 @@ else:
 if 'install' in sys.argv:
     print __doc__
 
-setup(name='pyAMI',
+data_path = os.path.join('yellowhiggs', 'dat')
+
+setup(name='yellowhiggs',
       version=VERSION,
       description='Interface for the CERN Yellow Report',
       long_description=open('README.rst').read(),
@@ -32,8 +33,12 @@ setup(name='pyAMI',
       author_email='noel.dawe@cern.ch',
       url=URL,
       download_url=DOWNLOAD_URL,
-      packages=packages,
+      packages=['yellowhiggs'],
       data_files=[(prefix, ['version.txt'])],
+      package_data={
+          'yellowhiggs': (  glob(os.path.join(data_path, 'xs', '*.txt'))
+                          + glob(os.path.join(data_path, 'br', '*.txt'))),
+      },
       license='GPLv3',
       classifiers=[
         "Programming Language :: Python",
