@@ -49,6 +49,13 @@ or with older Python versions::
 
    python setup.py install --prefix=~/.local
 
+You might need to first create the installation directory
+before executing the line above::
+
+   mkdir -p ~/.local/lib/python2.4/site-packages/
+
+(for Python 2.4)
+
 
 Usage
 -----
