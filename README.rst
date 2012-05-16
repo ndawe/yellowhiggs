@@ -73,8 +73,8 @@ An example of how to use yellowhiggs::
    0.0105
 
 Cross sections are returned in units of [pb].
-`xs` returns the (central cross section, high value, low value) at a :math:`\sqrt{s}` [TeV]
+`xs` returns the (central cross section, high value, low value) at a center-of-mass energy [TeV]
 for a given Higgs mass [GeV] and production mode.
 `br` returns the branching ratio at a given Higgs mass [GeV] for a decay channel.
-`xsbr` returns the cross section times branching ratio at a :math:`\sqrt{s}` [TeV]
+`xsbr` returns the cross section times branching ratio at a center-of-mass energy [TeV]
 for a given Higgs mass [GeV], production mode and decay channel.
