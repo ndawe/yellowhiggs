@@ -16,6 +16,17 @@ __all__ = [
 __HERE = os.path.dirname(os.path.abspath(__file__))
 
 
+# error representations
+ERROR_VALUE = 0
+ERROR_PERCENT = 1
+ERROR_FACTOR = 2
+
+# error components
+ERROR_FULL = 0
+ERROR_SCALE = 1
+ERROR_PDF = 2
+
+
 def _read_xs_file(filename):
 
     xs = {}
@@ -26,13 +37,54 @@ def _read_xs_file(filename):
             continue
         line = line.split()
         try:
-            mass, xs_mean, error_high, error_low = map(float, line[:4])
+            mass, xs_mean, \
+            error_high_full, error_low_full, \
+            error_high_scale, error_low_scale, \
+            error_high_pdf, error_low_pdf = map(abs, map(float, line))
         except ValueError, e:
             raise ValueError("line not understood: %s\n%s" % (line, e))
 
-        xs[mass] = (xs_mean,
-                    xs_mean * (1. + abs(error_high) / 100.),
-                    xs_mean * (1. - abs(error_low) / 100.))
+        info = {}
+        error = {}
+        error_full = {}
+        error_scale = {}
+        error_pdf = {}
+        error[ERROR_FULL] = error_full
+        error[ERROR_SCALE] = error_scale
+        error[ERROR_PDF] = error_pdf
+        info['VALUE'] = xs_mean
+        info['ERROR'] = error
+        xs[mass] = info
+
+        error_high_full_factor = 1 + error_high_full / 100.
+        error_low_full_factor = 1 - error_low_full / 100.
+
+        error_full[ERROR_VALUE] = (xs_mean * error_high_full_factor,
+                                   xs_mean * error_low_full_factor)
+        error_full[ERROR_PERCENT] = (error_high_full,
+                                     error_low_full)
+        error_full[ERROR_FACTOR] = (error_high_full_factor,
+                                    error_low_full_factor)
+
+        error_high_scale_factor = 1 + error_high_scale / 100.
+        error_low_scale_factor = 1 - error_low_scale / 100.
+
+        error_scale[ERROR_VALUE] = (xs_mean * error_high_scale_factor,
+                                    xs_mean * error_low_scale_factor)
+        error_scale[ERROR_PERCENT] = (error_high_scale,
+                                      error_low_scale)
+        error_scale[ERROR_FACTOR] = (error_high_scale_factor,
+                                     error_low_scale_factor)
+
+        error_high_pdf_factor = 1 + error_high_pdf / 100.
+        error_low_pdf_factor = 1 - error_low_pdf / 100.
+
+        error_pdf[ERROR_VALUE] = (xs_mean * error_high_pdf_factor,
+                                  xs_mean * error_low_pdf_factor)
+        error_pdf[ERROR_PERCENT] = (error_high_pdf,
+                                    error_low_pdf)
+        error_pdf[ERROR_FACTOR] = (error_high_pdf_factor,
+                                   error_low_pdf_factor)
     f.close()
     return xs
 
@@ -78,7 +130,9 @@ for channel_file in resource_listdir('yellowhiggs', os.path.join('dat', 'br')):
     __BR.update(_read_br_file(os.path.join('dat', 'br', channel_file)))
 
 
-def xs(energy, mass, mode):
+def xs(energy, mass, mode,
+       error=ERROR_FULL,
+       error_type=ERROR_VALUE):
     """
     Return the production cross section [pb] in this mode in the form:
     (xs, xs_high, xs_low)
@@ -95,7 +149,8 @@ def xs(energy, mass, mode):
         raise ValueError("mass point %.1f GeV not recorded for production mode '%s'" %
                          (mass, mode))
 
-    return __XS[energy][mode][mass]
+    info = __XS[energy][mode][mass]
+    return info['VALUE'], info['ERROR'][error][error_type]
 
 
 def br(mass, channel):
@@ -112,12 +167,19 @@ def br(mass, channel):
     return __BR[channel][mass]
 
 
-def xsbr(energy, mass, mode, channel):
+def xsbr(energy, mass, mode, channel,
+         error=ERROR_FULL,
+         error_type=ERROR_VALUE):
     """
     Return the production cross section [pb] times branching ratio for this mode and
     channel in the form:
     (xsbr, xsbr_high, xsbr_low)
     """
-    _xs, xs_high, xs_low = xs(energy, mass, mode)
+    _xs, (xs_high, xs_low) = xs(energy, mass, mode,
+                              error=error,
+                              error_type=error_type)
     _br = br(mass, channel)
-    return (_xs * _br, xs_high * _br, xs_low * _br)
+    if error_type == ERROR_VALUE:
+        return _xs * _br, (xs_high * _br, xs_low * _br)
+    else:
+        return _xs * _br, (xs_high, xs_low)
