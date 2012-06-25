@@ -11,6 +11,12 @@ __all__ = [
     'xs',
     'br',
     'xsbr',
+    'ERROR_VALUE',
+    'ERROR_PERCENT',
+    'ERROR_FACTOR',
+    'ERROR_FULL',
+    'ERROR_SCALE',
+    'ERROR_PDF',
 ]
 
 __HERE = os.path.dirname(os.path.abspath(__file__))
@@ -176,8 +182,8 @@ def xsbr(energy, mass, mode, channel,
     (xsbr, xsbr_high, xsbr_low)
     """
     _xs, (xs_high, xs_low) = xs(energy, mass, mode,
-                              error=error,
-                              error_type=error_type)
+                                error=error,
+                                error_type=error_type)
     _br = br(mass, channel)
     if error_type == ERROR_VALUE:
         return _xs * _br, (xs_high * _br, xs_low * _br)
