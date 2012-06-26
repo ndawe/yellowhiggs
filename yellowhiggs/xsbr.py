@@ -11,26 +11,9 @@ __all__ = [
     'xs',
     'br',
     'xsbr',
-    'ERROR_VALUE',
-    'ERROR_PERCENT',
-    'ERROR_FACTOR',
-    'ERROR_FULL',
-    'ERROR_SCALE',
-    'ERROR_PDF',
 ]
 
 __HERE = os.path.dirname(os.path.abspath(__file__))
-
-
-# error representations
-ERROR_VALUE = 0
-ERROR_PERCENT = 1
-ERROR_FACTOR = 2
-
-# error components
-ERROR_FULL = 0
-ERROR_SCALE = 1
-ERROR_PDF = 2
 
 
 def _read_xs_file(filename):
@@ -55,9 +38,9 @@ def _read_xs_file(filename):
         error_full = {}
         error_scale = {}
         error_pdf = {}
-        error[ERROR_FULL] = error_full
-        error[ERROR_SCALE] = error_scale
-        error[ERROR_PDF] = error_pdf
+        error['full'] = error_full
+        error['scale'] = error_scale
+        error['pdf'] = error_pdf
         info['VALUE'] = xs_mean
         info['ERROR'] = error
         xs[mass] = info
@@ -65,32 +48,32 @@ def _read_xs_file(filename):
         error_high_full_factor = 1 + error_high_full / 100.
         error_low_full_factor = 1 - error_low_full / 100.
 
-        error_full[ERROR_VALUE] = (xs_mean * error_high_full_factor,
-                                   xs_mean * error_low_full_factor)
-        error_full[ERROR_PERCENT] = (error_high_full,
-                                     error_low_full)
-        error_full[ERROR_FACTOR] = (error_high_full_factor,
-                                    error_low_full_factor)
+        error_full['value'] = (xs_mean * error_high_full_factor,
+                               xs_mean * error_low_full_factor)
+        error_full['percent'] = (error_high_full,
+                                 error_low_full)
+        error_full['factor'] = (error_high_full_factor,
+                                error_low_full_factor)
 
         error_high_scale_factor = 1 + error_high_scale / 100.
         error_low_scale_factor = 1 - error_low_scale / 100.
 
-        error_scale[ERROR_VALUE] = (xs_mean * error_high_scale_factor,
-                                    xs_mean * error_low_scale_factor)
-        error_scale[ERROR_PERCENT] = (error_high_scale,
-                                      error_low_scale)
-        error_scale[ERROR_FACTOR] = (error_high_scale_factor,
-                                     error_low_scale_factor)
+        error_scale['value'] = (xs_mean * error_high_scale_factor,
+                                xs_mean * error_low_scale_factor)
+        error_scale['percent'] = (error_high_scale,
+                                  error_low_scale)
+        error_scale['factor'] = (error_high_scale_factor,
+                                 error_low_scale_factor)
 
         error_high_pdf_factor = 1 + error_high_pdf / 100.
         error_low_pdf_factor = 1 - error_low_pdf / 100.
 
-        error_pdf[ERROR_VALUE] = (xs_mean * error_high_pdf_factor,
-                                  xs_mean * error_low_pdf_factor)
-        error_pdf[ERROR_PERCENT] = (error_high_pdf,
-                                    error_low_pdf)
-        error_pdf[ERROR_FACTOR] = (error_high_pdf_factor,
-                                   error_low_pdf_factor)
+        error_pdf['value'] = (xs_mean * error_high_pdf_factor,
+                              xs_mean * error_low_pdf_factor)
+        error_pdf['percent'] = (error_high_pdf,
+                                error_low_pdf)
+        error_pdf['factor'] = (error_high_pdf_factor,
+                               error_low_pdf_factor)
     f.close()
     return xs
 
@@ -137,8 +120,8 @@ for channel_file in resource_listdir('yellowhiggs', os.path.join('dat', 'br')):
 
 
 def xs(energy, mass, mode,
-       error=ERROR_FULL,
-       error_type=ERROR_VALUE):
+       error='full',
+       error_type='value'):
     """
     Return the production cross section [pb] in this mode in the form:
     (xs, xs_high, xs_low)
@@ -174,8 +157,8 @@ def br(mass, channel):
 
 
 def xsbr(energy, mass, mode, channel,
-         error=ERROR_FULL,
-         error_type=ERROR_VALUE):
+         error='full',
+         error_type='value'):
     """
     Return the production cross section [pb] times branching ratio for this mode and
     channel in the form:
@@ -185,7 +168,7 @@ def xsbr(energy, mass, mode, channel,
                                 error=error,
                                 error_type=error_type)
     _br = br(mass, channel)
-    if error_type == ERROR_VALUE:
+    if error_type == 'value':
         return _xs * _br, (xs_high * _br, xs_low * _br)
     else:
         return _xs * _br, (xs_high, xs_low)
