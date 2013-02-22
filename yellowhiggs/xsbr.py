@@ -123,8 +123,9 @@ def xs(energy, mass, mode,
        error='full',
        error_type='value'):
     """
+    xs(energy, mass, mode, error='full', error_type='value')
     Return the production cross section [pb] in this mode in the form:
-    (xs, xs_high, xs_low)
+    (xs, (xs_high, xs_low))
     """
     mode = mode.lower()
     if energy not in __XS:
@@ -144,9 +145,10 @@ def xs(energy, mass, mode,
 
 def br(mass, channel):
     """
+    br(mass, channel): --> float
     Return the branching ratio for this channel
     """
-    channel = channel.lower()
+    #channel = channel.lower()
     if channel not in __BR:
         raise ValueError("channel '%s' not understood. Use one of %s" %
                          (channel, ', '.join(__BR.keys())))
