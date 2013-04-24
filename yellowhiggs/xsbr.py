@@ -5,6 +5,7 @@ branching ratios. See dat/README
 import os
 from glob import glob
 from pkg_resources import resource_stream, resource_listdir
+import math
 
 
 __all__ = [
@@ -82,13 +83,17 @@ def _read_br_file(filename):
 
     br = {}
     f = resource_stream('yellowhiggs', filename)
+    header = {}
     for i, line in enumerate(f.readlines()):
         line = line.strip().split()
         if i == 0:
             # First line contains channel labels
             # Ignore first column which is the Higgs mass
             channels = line[1:]
-            for channel in channels:
+            for j, channel in enumerate(channels):
+                header[channel] = j + 1
+                if channel[:1] in ['+', '-']:
+                    continue
                 br[channel] = {}
         else:
             try:
@@ -96,7 +101,25 @@ def _read_br_file(filename):
             except ValueError, e:
                 raise ValueError("line not understood: %s\n%s" % (line, e))
             for channel, value in zip(channels, line[1:]):
-                br[channel][line[0]] = value
+                if channel[:1] in ['+', '-']:
+                    continue
+                error_high = 0.
+                error_low = 0.
+                if 'ERROR' in header:
+                    error_high = line[header['ERROR']]
+                    error_low = -line[header['ERROR']]
+                if '+'+channel in header: error_high = line[header['+'+channel]]
+                if '-'+channel in header: error_low = line[header['-'+channel]]
+                error_high_factor = 1. + error_high/100.
+                error_low_factor = 1. + error_low/100.
+                error = {}
+                error['value'] = (value * error_high_factor, value * error_low_factor)
+                error['percent'] = (error_high, error_low)
+                error['factor'] = (error_high_factor, error_low_factor)
+                info = {}
+                info['ERROR'] = error
+                info['VALUE'] = value
+                br[channel][line[0]] = info
     f.close()
     return br
 
@@ -114,9 +137,12 @@ for energy, energy_dir in zip(ENERGIES, energy_dirs):
     for mode, mode_file in zip(modes, mode_files):
         __XS[energy][mode] = _read_xs_file(os.path.join('dat', 'xs', energy_dir, mode_file))
 
+br_dirs = resource_listdir('yellowhiggs', os.path.join('dat', 'br'))
 __BR = {}
-for channel_file in resource_listdir('yellowhiggs', os.path.join('dat', 'br')):
-    __BR.update(_read_br_file(os.path.join('dat', 'br', channel_file)))
+for br_dir in br_dirs:
+    __BR[br_dir] = {}
+    for channel_file in resource_listdir('yellowhiggs', os.path.join('dat', 'br', br_dir)):
+        __BR[br_dir].update(_read_br_file(os.path.join('dat', 'br', br_dir, channel_file)))
 
 
 def xs(energy, mass, mode,
@@ -143,34 +169,59 @@ def xs(energy, mass, mode,
     return info['VALUE'], info['ERROR'][error][error_type]
 
 
-def br(mass, channel):
+def br(mass, channel, version='v2', error_type='value'):
     """
-    br(mass, channel): --> float
+    br(mass, channel, version='v2', error_type=None): --> float
     Return the branching ratio for this channel
+    
+    error_type = 'value', 'percent' or 'factor'
     """
     #channel = channel.lower()
-    if channel not in __BR:
+    if version not in __BR:
+        raise ValueError("version '%s' not in directory. Use one of %s" %
+                         (version, ', '.join(__BR.keys())))
+    if channel not in __BR[version]:
         raise ValueError("channel '%s' not understood. Use one of %s" %
-                         (channel, ', '.join(__BR.keys())))
-    if mass not in __BR[channel]:
-        raise ValueError("mass point %.1f [GeV] not recorded for channel '%s'" %
-                         (mass, channel))
-    return __BR[channel][mass]
+                         (channel, ', '.join(__BR[version].keys())))
+    if mass not in __BR[version][channel]:
+        raise ValueError("mass point %.1f [GeV] not recorded for channel '%s', version '%s'" %
+                         (mass, channel, version))
 
+    info = __BR[version][channel][mass]
+    return info['VALUE'], info['ERROR'][error_type]
+
+def adderrors(errors, error_type, value=0.):
+    """
+    Quadraturely sums the errors and returns (high, low), either as
+    error_type = 'value', 'percent' or 'factor'
+    """
+    total_high, total_low = 0., 0.
+    for high, low in errors:
+        total_high += (high/100.)**2.
+        total_low += (low/100.)**2.
+    total_high = 1. + math.sqrt(total_high)
+    total_low = 1. - math.sqrt(total_low)
+    if error_type == 'value':
+        return total_high*value, total_low*value
+    elif error_type == 'percent':
+        return (total_high - 1.) * 100., (1. - total_low) * -100
+    else:
+        return total_high, total_low
 
 def xsbr(energy, mass, mode, channel,
          error='full',
-         error_type='value'):
+         error_type='value',
+         brversion = 'v2'):
     """
     Return the production cross section [pb] times branching ratio for this mode and
     channel in the form:
     (xsbr, xsbr_high, xsbr_low)
     """
-    _xs, (xs_high, xs_low) = xs(energy, mass, mode,
+    _xs, xs_error = xs(energy, mass, mode,
                                 error=error,
-                                error_type=error_type)
-    _br = br(mass, channel)
-    if error_type == 'value':
-        return _xs * _br, (xs_high * _br, xs_low * _br)
-    else:
-        return _xs * _br, (xs_high, xs_low)
+                                error_type='percent')
+    _br, br_error = br(mass, channel, version=brversion,
+                                error_type='percent')
+
+    error_high, error_low = adderrors([xs_error, br_error], error_type, value=_xs * _br)
+    return _xs * _br, (error_high, error_low)
