@@ -137,12 +137,28 @@ for energy, energy_dir in zip(ENERGIES, energy_dirs):
     for mode, mode_file in zip(modes, mode_files):
         __XS[energy][mode] = _read_xs_file(os.path.join('dat', 'xs', energy_dir, mode_file))
 
-br_dirs = resource_listdir('yellowhiggs', os.path.join('dat', 'br'))
 __BR = {}
-for br_dir in br_dirs:
-    __BR[br_dir] = {}
-    for channel_file in resource_listdir('yellowhiggs', os.path.join('dat', 'br', br_dir)):
-        __BR[br_dir].update(_read_br_file(os.path.join('dat', 'br', br_dir, channel_file)))
+for channel_file in resource_listdir('yellowhiggs', os.path.join('dat', 'br')):
+    __BR.update(_read_br_file(os.path.join('dat', 'br', channel_file)))
+
+
+def adderrors(errors, error_type, value=0.):
+    """
+    Sum the errors in quadrature and return (high, low), either as
+    error_type = 'value', 'percent' or 'factor'
+    """
+    total_high, total_low = 0., 0.
+    for high, low in errors:
+        total_high += (high/100.)**2.
+        total_low += (low/100.)**2.
+    total_high = 1. + math.sqrt(total_high)
+    total_low = 1. - math.sqrt(total_low)
+    if error_type == 'value':
+        return total_high * value, total_low * value
+    elif error_type == 'percent':
+        return (total_high - 1.) * 100., (1. - total_low) * -100
+    else:
+        return total_high, total_low
 
 
 def xs(energy, mass, mode,
@@ -169,59 +185,37 @@ def xs(energy, mass, mode,
     return info['VALUE'], info['ERROR'][error][error_type]
 
 
-def br(mass, channel, version='v2', error_type='value'):
+def br(mass, channel, error_type='value'):
     """
     br(mass, channel, version='v2', error_type=None): --> float
     Return the branching ratio for this channel
-    
+
     error_type = 'value', 'percent' or 'factor'
     """
     #channel = channel.lower()
-    if version not in __BR:
-        raise ValueError("version '%s' not in directory. Use one of %s" %
-                         (version, ', '.join(__BR.keys())))
-    if channel not in __BR[version]:
+    if channel not in __BR:
         raise ValueError("channel '%s' not understood. Use one of %s" %
-                         (channel, ', '.join(__BR[version].keys())))
-    if mass not in __BR[version][channel]:
-        raise ValueError("mass point %.1f [GeV] not recorded for channel '%s', version '%s'" %
-                         (mass, channel, version))
+                         (channel, ', '.join(__BR.keys())))
+    if mass not in __BR[channel]:
+        raise ValueError("mass point %.1f [GeV] not recorded for channel '%s'" %
+                         (mass, channel))
 
-    info = __BR[version][channel][mass]
+    info = __BR[channel][mass]
     return info['VALUE'], info['ERROR'][error_type]
 
-def adderrors(errors, error_type, value=0.):
-    """
-    Quadraturely sums the errors and returns (high, low), either as
-    error_type = 'value', 'percent' or 'factor'
-    """
-    total_high, total_low = 0., 0.
-    for high, low in errors:
-        total_high += (high/100.)**2.
-        total_low += (low/100.)**2.
-    total_high = 1. + math.sqrt(total_high)
-    total_low = 1. - math.sqrt(total_low)
-    if error_type == 'value':
-        return total_high*value, total_low*value
-    elif error_type == 'percent':
-        return (total_high - 1.) * 100., (1. - total_low) * -100
-    else:
-        return total_high, total_low
 
 def xsbr(energy, mass, mode, channel,
          error='full',
-         error_type='value',
-         brversion = 'v2'):
+         error_type='value'):
     """
     Return the production cross section [pb] times branching ratio for this mode and
     channel in the form:
     (xsbr, xsbr_high, xsbr_low)
     """
-    _xs, xs_error = xs(energy, mass, mode,
-                                error=error,
-                                error_type='percent')
-    _br, br_error = br(mass, channel, version=brversion,
-                                error_type='percent')
+    _xs, xs_error = xs(energy, mass, mode, error=error, error_type='percent')
+    _br, br_error = br(mass, channel, error_type='percent')
 
-    error_high, error_low = adderrors([xs_error, br_error], error_type, value=_xs * _br)
+    error_high, error_low = adderrors([xs_error, br_error],
+                                      error_type,
+                                      value=_xs * _br)
     return _xs * _br, (error_high, error_low)
