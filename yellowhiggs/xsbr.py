@@ -7,32 +7,32 @@ from glob import glob
 from pkg_resources import resource_stream, resource_listdir
 import math
 
-
 __all__ = [
     'xs',
     'br',
     'xsbr',
 ]
 
-__HERE = os.path.dirname(os.path.abspath(__file__))
-
 
 def _read_xs_file(filename):
-
     xs = {}
     f = resource_stream('yellowhiggs', filename)
     for line in f.readlines():
         line = line.strip()
         if line.startswith('#'):
+            # skip the header line
             continue
         line = line.split()
         try:
             mass, xs_mean, \
-            error_high_full, error_low_full, \
             error_high_scale, error_low_scale, \
-            error_high_pdf, error_low_pdf = map(abs, map(float, line))
+            error_high_pdf, error_low_pdf = map(abs, map(float, line[:6]))
         except ValueError, e:
             raise ValueError("line not understood: %s\n%s" % (line, e))
+
+        # linear combination of errors
+        error_high_full = error_high_scale + error_high_pdf
+        error_low_full = error_low_scale + error_low_pdf
 
         info = {}
         error = {}
@@ -80,7 +80,6 @@ def _read_xs_file(filename):
 
 
 def _read_br_file(filename):
-
     br = {}
     f = resource_stream('yellowhiggs', filename)
     header = {}
@@ -108,14 +107,19 @@ def _read_br_file(filename):
                 if 'ERROR' in header:
                     error_high = line[header['ERROR']]
                     error_low = -line[header['ERROR']]
-                if '+'+channel in header: error_high = line[header['+'+channel]]
-                if '-'+channel in header: error_low = line[header['-'+channel]]
-                error_high_factor = 1. + error_high/100.
-                error_low_factor = 1. + error_low/100.
+                if '+' + channel in header:
+                    error_high = line[header['+'+channel]]
+                if '-' + channel in header:
+                    error_low = line[header['-'+channel]]
+                error_high_factor = 1. + error_high / 100.
+                error_low_factor = 1. + error_low / 100.
                 error = {}
-                error['value'] = (value * error_high_factor, value * error_low_factor)
-                error['percent'] = (error_high, error_low)
-                error['factor'] = (error_high_factor, error_low_factor)
+                error['value'] = (
+                    value * error_high_factor, value * error_low_factor)
+                error['percent'] = (
+                    error_high, error_low)
+                error['factor'] = (
+                    error_high_factor, error_low_factor)
                 info = {}
                 info['ERROR'] = error
                 info['VALUE'] = value
@@ -130,15 +134,18 @@ ENERGIES = map(float, energy_dirs)
 
 __XS = {}
 for energy, energy_dir in zip(ENERGIES, energy_dirs):
-    mode_files = resource_listdir('yellowhiggs', os.path.join('dat', 'xs', energy_dir))
+    mode_files = resource_listdir(
+        'yellowhiggs', os.path.join('dat', 'xs', energy_dir))
     modes = [mode.split('.')[0] for mode in mode_files]
     MODES[energy] = modes
     __XS[energy] = {}
     for mode, mode_file in zip(modes, mode_files):
-        __XS[energy][mode] = _read_xs_file(os.path.join('dat', 'xs', energy_dir, mode_file))
+        __XS[energy][mode] = _read_xs_file(
+            os.path.join('dat', 'xs', energy_dir, mode_file))
 
 __BR = {}
-for channel_file in resource_listdir('yellowhiggs', os.path.join('dat', 'br')):
+for channel_file in resource_listdir(
+        'yellowhiggs', os.path.join('dat', 'br')):
     __BR.update(_read_br_file(os.path.join('dat', 'br', channel_file)))
 
 
@@ -171,35 +178,38 @@ def xs(energy, mass, mode,
     """
     mode = mode.lower()
     if energy not in __XS:
-        raise ValueError(("no cross sections recorded for energy %.1f TeV. "
-                          "Use one of %s") %
-                          (energy, ', '.join(map(str, __XS.keys()))))
+        raise ValueError(
+            "no cross sections recorded for energy %.1f TeV. "
+            "Use one of %s" %
+                (energy, ', '.join(map(str, __XS.keys()))))
     if mode not in __XS[energy]:
-        raise ValueError("production mode '%s' not understood. Use one of %s" %
-                         (mode, ', '.join(__XS[energy].keys())))
+        raise ValueError(
+            "production mode '%s' not understood. Use one of %s" %
+                (mode, ', '.join(__XS[energy].keys())))
     if mass not in __XS[energy][mode]:
-        raise ValueError("mass point %.1f GeV not recorded for production mode '%s'" %
-                         (mass, mode))
-
+        raise ValueError(
+            "mass point %.1f GeV not recorded for production mode '%s'" %
+                (mass, mode))
     info = __XS[energy][mode][mass]
     return info['VALUE'], info['ERROR'][error][error_type]
 
 
-def br(mass, channel, error_type='value'):
+def br(mass, channel,
+       error_type='value'):
     """
     br(mass, channel, version='v2', error_type=None): --> float
     Return the branching ratio for this channel
 
     error_type = 'value', 'percent' or 'factor'
     """
-    #channel = channel.lower()
     if channel not in __BR:
-        raise ValueError("channel '%s' not understood. Use one of %s" %
-                         (channel, ', '.join(__BR.keys())))
+        raise ValueError(
+            "channel '%s' not understood. Use one of %s" %
+                (channel, ', '.join(__BR.keys())))
     if mass not in __BR[channel]:
-        raise ValueError("mass point %.1f [GeV] not recorded for channel '%s'" %
-                         (mass, channel))
-
+        raise ValueError(
+            "mass point %.1f [GeV] not recorded for channel '%s'" %
+                (mass, channel))
     info = __BR[channel][mass]
     return info['VALUE'], info['ERROR'][error_type]
 
@@ -214,7 +224,6 @@ def xsbr(energy, mass, mode, channel,
     """
     _xs, xs_error = xs(energy, mass, mode, error=error, error_type='percent')
     _br, br_error = br(mass, channel, error_type='percent')
-
     error_high, error_low = adderrors([xs_error, br_error],
                                       error_type,
                                       value=_xs * _br)

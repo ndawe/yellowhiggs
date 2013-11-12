@@ -2,9 +2,8 @@
 
 PYTHON := $(shell which python)
 NOSETESTS ?= nosetests
-CTAGS ?= ctags
 
-all: clean inplace test
+all: clean
 
 clean-pyc:
 	find . -name "*.pyc" -exec rm {} \;
