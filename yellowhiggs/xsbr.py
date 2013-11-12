@@ -5,7 +5,7 @@ branching ratios. See dat/README
 import os
 from glob import glob
 from pkg_resources import resource_stream, resource_listdir
-import math
+from math import sqrt
 
 __all__ = [
     'xs',
@@ -104,15 +104,12 @@ def _read_br_file(filename):
                     continue
                 error_high = 0.
                 error_low = 0.
-                if 'ERROR' in header:
-                    error_high = line[header['ERROR']]
-                    error_low = -line[header['ERROR']]
                 if '+' + channel in header:
-                    error_high = line[header['+'+channel]]
+                    error_high = abs(line[header['+' + channel]])
                 if '-' + channel in header:
-                    error_low = line[header['-'+channel]]
+                    error_low = abs(line[header['-' + channel]])
                 error_high_factor = 1. + error_high / 100.
-                error_low_factor = 1. + error_low / 100.
+                error_low_factor = 1. - error_low / 100.
                 error = {}
                 error['value'] = (
                     value * error_high_factor, value * error_low_factor)
@@ -151,21 +148,21 @@ for channel_file in resource_listdir(
 
 def adderrors(errors, error_type, value=0.):
     """
-    Sum the errors in quadrature and return (high, low), either as
+    Sum percent errors in quadrature and return (high, low), either as
     error_type = 'value', 'percent' or 'factor'
     """
     total_high, total_low = 0., 0.
     for high, low in errors:
-        total_high += (high/100.)**2.
-        total_low += (low/100.)**2.
-    total_high = 1. + math.sqrt(total_high)
-    total_low = 1. - math.sqrt(total_low)
+        total_high += (high / 100.)**2.
+        total_low += (low / 100.)**2.
+    total_high = sqrt(total_high)
+    total_low = sqrt(total_low)
     if error_type == 'value':
-        return total_high * value, total_low * value
+        return (1. + total_high) * value, (1. - total_low) * value
     elif error_type == 'percent':
-        return (total_high - 1.) * 100., (1. - total_low) * -100
+        return total_high * 100., total_low * 100.
     else:
-        return total_high, total_low
+        return (1. + total_high), (1. - total_low)
 
 
 def xs(energy, mass, mode,
@@ -224,7 +221,7 @@ def xsbr(energy, mass, mode, channel,
     """
     _xs, xs_error = xs(energy, mass, mode, error=error, error_type='percent')
     _br, br_error = br(mass, channel, error_type='percent')
-    error_high, error_low = adderrors([xs_error, br_error],
-                                      error_type,
-                                      value=_xs * _br)
-    return _xs * _br, (error_high, error_low)
+    value = _xs * _br
+    error_high, error_low = adderrors(
+        [xs_error, br_error], error_type, value=value)
+    return value, (error_high, error_low)
