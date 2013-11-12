@@ -10,7 +10,7 @@ Author: Noel Dawe
 
 """
 
-VERSION = '1.0a4'
+VERSION = '3.0'
 URL = 'https://end.web.cern.ch/end/projects/yellowhiggs/'
 DOWNLOAD_URL = 'http://pypi.python.org/packages/source/y/yellowhiggs/yellowhiggs-%s.tar.gz' % VERSION
 
