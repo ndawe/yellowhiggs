@@ -9,7 +9,7 @@ CERN Yellow Report:
 * `CERNYellowReportPageAt7TeV <https://twiki.cern.ch/twiki/bin/view/LHCPhysics/CERNYellowReportPageAt7TeV>`_
 * `CERNYellowReportPageAt8TeV <https://twiki.cern.ch/twiki/bin/view/LHCPhysics/CERNYellowReportPageAt8TeV>`_
 * `CERNYellowReportPageAt14TeV <https://twiki.cern.ch/twiki/bin/view/LHCPhysics/CERNYellowReportPageAt14TeV>`_
-* `CERNYellowReportPageBR <https://twiki.cern.ch/twiki/bin/view/LHCPhysics/CERNYellowReportPageBR>`_
+* `CERNYellowReportPageBR <https://twiki.cern.ch/twiki/bin/view/LHCPhysics/CERNYellowReportPageBR3>`_
 
 
 Automatic Installation
@@ -63,17 +63,17 @@ An example of how to use yellowhiggs:
 .. code-block:: python
 
    >>> import yellowhiggs
-   >>> 
+   >>>
    >>> yellowhiggs.xsbr(7, 130, 'vbf', 'bb')
    (0.5689219999999999, (0.584851816, 0.555836794))
    >>> yellowhiggs.xsbr(7, 130, 'vbf', 'bb', error_type='percent')
    (0.5689219999999999, (2.8, 2.3))
    >>> yellowhiggs.xsbr(7, 130, 'vbf', 'bb', error_type='factor')
    (0.5689219999999999, (1.028, 0.977))
-   >>> 
+   >>>
    >>> yellowhiggs.xsbr(7, 130, 'vbf', 'tautau')
    (0.0632392, (0.0650098976, 0.06178469839999999))
-   >>> 
+   >>>
    >>> yellowhiggs.xsbr(7, 125, 'ggf', 'gammagamma')
    (0.0350599, (0.0418965805, 0.0297658551))
    >>> yellowhiggs.xsbr(7, 125, 'ggf', 'gammagamma', error='scale')
@@ -84,12 +84,12 @@ An example of how to use yellowhiggs:
    (0.0350599, (0.0418965805, 0.0297658551))
    >>> yellowhiggs.xsbr(7, 125, 'ggf', 'gammagamma', error='pdf', error_type='percent')
    (0.0350599, (7.8, 7.3))
-   >>> 
+   >>>
    >>> yellowhiggs.xs(7, 150, 'vbf')
    (0.9617, (0.9895892999999999, 0.9405426))
    >>> yellowhiggs.xs(7, 150, 'vbf', error_type='percent')
    (0.9617, (2.9, 2.2))
-   >>> 
+   >>>
    >>> yellowhiggs.br(150, 'tautau')
    0.0178
    >>> yellowhiggs.br(155, 'tautau')
