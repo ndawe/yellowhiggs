@@ -58,7 +58,9 @@ before executing the line above (for Python 2.4)::
 Usage
 -----
 
-An example of how to use yellowhiggs::
+An example of how to use yellowhiggs:
+
+.. code-block:: python
 
    >>> import yellowhiggs
    >>> 
