@@ -21,12 +21,6 @@ import sys
 from glob import glob
 
 execfile('yellowhiggs/info.py')
-open('version.txt', 'w').write(__version__)
-
-if os.getenv('YELLOWHIGGS_AFS_INSTALL') in ('1', 'true'):
-    prefix = '/afs/cern.ch/atlas/software/tools/yellowhiggs'
-else:
-    prefix = 'etc/yellowhiggs'
 
 if 'install' in sys.argv:
     print __doc__
@@ -41,7 +35,6 @@ setup(
     url=URL,
     download_url=DOWNLOAD_URL,
     packages=['yellowhiggs'],
-    data_files=[(prefix, ['version.txt'])],
     package_data={
         'yellowhiggs': [
             'dat/xs/7/*.txt',
@@ -60,5 +53,3 @@ setup(
         "Intended Audience :: Developers",
         "License :: OSI Approved :: GNU General Public License (GPL)"
     ])
-
-os.unlink('version.txt')
