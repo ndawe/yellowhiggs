@@ -24,13 +24,13 @@ install-user:
 	$(PYTHON) setup.py install --user
 
 sdist: clean
-	$(PYTHON) setup.py sdist --release
+	$(PYTHON) setup.py sdist
 
 register:
-	$(PYTHON) setup.py register --release
+	$(PYTHON) setup.py register
 
 upload: clean
-	$(PYTHON) setup.py sdist upload --release
+	$(PYTHON) setup.py sdist upload
 
 trailing-spaces:
 	find yellowhiggs -name "*.py" | xargs perl -pi -e 's/[ \t]*$$//'
