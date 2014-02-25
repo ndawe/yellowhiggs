@@ -1,8 +1,5 @@
 #!/usr/bin/env python
 
-from distribute_setup import use_setuptools
-use_setuptools()
-
 import os
 # Prevent distutils from trying to create hard links
 # which are not allowed on AFS between directories.
@@ -13,7 +10,7 @@ except AttributeError:
     pass
 
 try:
-    from setuptools.core import setup
+    from setuptools import setup
 except ImportError:
     from distutils.core import setup
 
