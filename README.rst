@@ -1,5 +1,11 @@
 .. -*- mode: rst -*-
 
+.. image:: https://pypip.in/v/yellowhiggs/badge.png
+   :target: https://pypi.python.org/pypi/yellowhiggs
+.. image:: https://pypip.in/d/yellowhiggs/badge.png
+   :target: https://crate.io/packages/yellowhiggs/
+
+
 About
 -----
 
