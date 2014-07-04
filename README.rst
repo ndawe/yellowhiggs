@@ -6,9 +6,6 @@
    :target: https://crate.io/packages/yellowhiggs/
 
 
-About
------
-
 yellowhiggs provides an interface with Higgs production cross section and branching ratio data in the
 CERN Yellow Report:
 
