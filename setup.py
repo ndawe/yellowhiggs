@@ -36,6 +36,7 @@ setup(
         'yellowhiggs': [
             'dat/xs/7/*.txt',
             'dat/xs/8/*.txt',
+            'dat/xs/13/*.txt',
             'dat/xs/14/*.txt',
             'dat/br/*.txt',
         ],
