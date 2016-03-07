@@ -9,7 +9,7 @@
 Author: Noel Dawe
 
 """
-__version__ = '3.0.1'
+__version__ = '3.1.0'
 URL = 'https://github.com/ndawe/yellowhiggs'
 DOWNLOAD_URL = 'http://pypi.python.org/packages/source/y/yellowhiggs/yellowhiggs-%s.tar.gz' % __version__
 __doc__ %= __version__
