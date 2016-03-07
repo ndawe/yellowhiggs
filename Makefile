@@ -11,11 +11,7 @@ clean-pyc:
 clean-build:
 	rm -rf build
 
-clean-distribute:
-	rm -f distribute-*.egg
-	rm -f distribute-*.tar.gz
-
-clean: clean-build clean-pyc clean-distribute
+clean: clean-build clean-pyc
 
 install:
 	$(PYTHON) setup.py install
@@ -31,12 +27,6 @@ register:
 
 upload: clean
 	$(PYTHON) setup.py sdist upload
-
-trailing-spaces:
-	find yellowhiggs -name "*.py" | xargs perl -pi -e 's/[ \t]*$$//'
-
-update-distribute:
-	curl -O http://python-distribute.org/distribute_setup.py
 
 check-rst:
 	python setup.py --long-description | rst2html.py > __output.html
