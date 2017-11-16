@@ -79,6 +79,41 @@ def _read_xs_file(filename):
     return xs
 
 
+def _read_width_file(filename):
+    width = {}
+    f = resource_stream('yellowhiggs', filename)
+    for line in f.readlines():
+        line = line.strip()
+        if line.startswith('#'):
+            # skip the header line
+            continue
+        line = line.split()
+        try:
+            mass, width_mean, \
+            error_high, error_low = map(abs, map(float, line[:4]))
+        except ValueError, e:
+            raise ValueError("line not understood: %s\n%s" % (line, e))
+
+        info = {}
+        error = {}
+        info['VALUE'] = width_mean
+        info['ERROR'] = error
+        width[mass] = info
+
+        error_high_factor = 1 + error_high / 100.
+        error_low_factor = 1 - error_low / 100.
+
+        error['value'] = (width_mean * error_high_factor,
+                          width_mean * error_low_factor)
+        error['percent'] = (error_high,
+                            error_low)
+        error['factor'] = (error_high_factor,
+                           error_low_factor)
+
+    f.close()
+    return width
+
+
 def _read_br_file(filename):
     br = {}
     f = resource_stream('yellowhiggs', filename)
@@ -145,6 +180,10 @@ for channel_file in resource_listdir(
         'yellowhiggs', os.path.join('dat', 'br')):
     __BR.update(_read_br_file(os.path.join('dat', 'br', channel_file)))
 
+__width = {}
+for width_file in resource_listdir(
+        'yellowhiggs', os.path.join('dat', 'width')):
+    __width.update(_read_width_file(os.path.join('dat', 'width', width_file)))
 
 def adderrors(errors, error_type, value=0.):
     """
@@ -208,6 +247,21 @@ def br(mass, channel,
             "mass point %.1f [GeV] not recorded for channel '%s'" %
                 (mass, channel))
     info = __BR[channel][mass]
+    return info['VALUE'], info['ERROR'][error_type]
+
+
+def width(mass, error_type='value'):
+    """
+    width(mass, error_type='value'): --> float
+    Return the width for this mass
+
+    error_type = 'value', 'percent' or 'factor'
+    """
+    if mass not in __width:
+        raise ValueError(
+            "width not recorded for mass point %.1f [GeV]" %
+                (mass, channel))
+    info = __width[mass]
     return info['VALUE'], info['ERROR'][error_type]
 
 
